@@ -1,3 +1,3 @@
-module github.com/A-SCEND/errors
+module github.com/hunterdishner/errors
 
 go 1.12
