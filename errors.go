@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 type Error struct {
@@ -54,7 +53,7 @@ func E(args ...interface{}) error {
 	}
 
 	e := &Error{
-		stack: callingLocations(6, 3),
+		stack: callingLocations(6, 3), //may need to go to 7,4 depending on newer versions
 	}
 
 	for _, arg := range args {
@@ -116,17 +115,12 @@ func (e *Error) Error() string {
 
 	if e.Code != 0 {
 		prepend(b, ": ")
-		b.WriteString("code ")
+		b.WriteString(fmt.Sprintf("code %d", e.Code))
 	}
 
 	if e.Kind != 0 {
 		prepend(b, ": ")
 		b.WriteString(e.Kind.String())
-	}
-
-	if e.Op != "" {
-		prepend(b, ": ")
-		b.WriteString(string(e.Op))
 	}
 
 	if e.Err != nil {
@@ -139,10 +133,6 @@ func (e *Error) Error() string {
 	}
 
 	return b.String()
-}
-
-func IsNoRows(err error) bool {
-	return strings.Contains(err.Error(), "now rows in result set")
 }
 
 //function just implements the json.Marshaller interface
@@ -215,17 +205,17 @@ func (k Kind) String() string {
 }
 
 func Str(t string) error {
-	return &stringError{t}
+	return &errorString{t}
 }
 
-type stringError struct { //all this does is satisfy the error interface so that we can return a string an error
+type errorString struct { //all this does is satisfy the error interface so that we can return a string an error
 	s string
 }
 
-func (e *stringError) Error() string { //satisfy the interface
+func (e *errorString) Error() string { //satisfy the interface
 	return e.s
 }
 
 func Errorf(format string, args ...interface{}) error {
-	return &stringError{fmt.Sprintf(format, args...)}
+	return &errorString{fmt.Sprintf(format, args...)}
 }

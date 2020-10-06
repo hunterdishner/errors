@@ -1,3 +1,3 @@
 module github.com/hunterdishner/errors
 
-go 1.12
+go 1.14
